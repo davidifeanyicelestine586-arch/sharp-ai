@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sharp AI - SaaS Content Studio</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">
+      <h2>Sharp AI</h2>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-target="dashboard-view">Dashboard</button>
+      <button class="nav-item" data-target="history-view">History</button>
+      <button class="nav-item" data-target="templates-view">Templates</button>
+      <button class="nav-item" data-target="settings-view">Settings</button>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="topbar">
+
+      <div class="topbar-left">
+
+        <button id="menuToggle" class="menu-toggle">
+          ☰
+        </button>
+
+        <div>
+          <h2 id="viewTitle">AI Content Generator</h2>
+          <p id="viewSubtitle">Create smarter content faster</p>
+        </div>
+
+      </div>
+
+      <button class="upgrade-btn" id="upgradeBtn">
+        Upgrade Pro
+      </button>
+
+    </header>
+
+    <div class="view-viewport">
+
+      <!-- DASHBOARD -->
+      <section id="dashboard-view" class="saas-view active-view">
+
+        <div class="hero">
+          <h2>Write sharper with AI</h2>
+          <p>
+            Generate high-quality content instantly
+            for social media, blogs and creators.
+          </p>
+        </div>
+
+        <div class="generator">
+
+          <label for="topicInput">Content Topic</label>
+
+          <textarea
+            id="topicInput"
+            rows="5"
+            placeholder="Enter your content topic..."
+          ></textarea>
+
+          <div class="textarea-footer">
+            <p id="errorMessage"></p>
+            <p id="charCount">0 / 500 characters</p>
+          </div>
+
+          <div class="row">
+
+            <div class="field">
+              <label for="platformSelect">Platform</label>
+
+              <select id="platformSelect">
+                <option>LinkedIn</option>
+                <option>Twitter/X</option>
+                <option>Instagram</option>
+                <option>Blog Post</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="toneSelect">Tone</label>
+
+              <select id="toneSelect">
+                <option>Professional</option>
+                <option>Casual</option>
+                <option>Educational</option>
+                <option>Storytelling</option>
+              </select>
+            </div>
+
+          </div>
+
+          <div class="row">
+
+            <div class="field">
+              <label for="lengthSelect">Content Length</label>
+
+              <select id="lengthSelect">
+                <option>Short</option>
+                <option>Medium</option>
+                <option>Long</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="templateSelect">Template</label>
+
+              <select id="templateSelect">
+                <option>LinkedIn Post</option>
+                <option>X Thread</option>
+                <option>Instagram Caption</option>
+                <option>YouTube Script</option>
+                <option>Blog Intro</option>
+                <option>Product Description</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="keywordsInput">Keywords</label>
+              <input
+                type="text"
+                id="keywordsInput"
+                placeholder="Keywords..."
+              >
+            </div>
+
+          </div>
+
+          <div class="button-group">
+
+            <button id="generateBtn">
+              <span id="generateText">
+                Generate Content
+              </span>
+
+              <span
+                id="generateSpinner"
+                class="spinner hidden"
+              ></span>
+            </button>
+
+            <button id="regenerateBtn">
+              Regenerate
+            </button>
+
+          </div>
+
+          <div class="output-card">
+
+            <div class="output-header">
+              <h3>Generated Hook</h3>
+              <button
+                class="copy-btn"
+                data-target="hookOutput"
+              >
+                Copy
+              </button>
+            </div>
+
+            <div id="hookOutput" class="markdown-body">
+              Hook will appear here...
+            </div>
+
+            <div class="output-header">
+              <h3>Generated Content</h3>
+
+              <button
+                class="copy-btn"
+                data-target="contentOutput"
+              >
+                Copy
+              </button>
+            </div>
+
+            <div id="contentOutput" class="markdown-body">
+              Content will appear here...
+            </div>
+            <div class="output-header">
+  <h3>Call To Action</h3>
+
+  <button
+    class="copy-btn"
+    data-target="ctaOutput"
+  >
+    Copy
+  </button>
+</div>
+
+<div id="ctaOutput" class="markdown-body">
+  CTA will appear here...
+</div>
+
+            <div class="output-header">
+              <h3>Hashtags</h3>
+
+              <button
+                class="copy-btn"
+                data-target="hashtagOutput"
+              >
+                Copy
+              </button>
+            </div>
+
+            <div id="hashtagOutput" class="markdown-body">
+              Hashtags will appear here...
+            </div>
+
+          </div>
+
+          <button id="exportBtn">
+            Export Content
+          </button>
+
+        </div>
+
+      </section>
+
+      <!-- HISTORY -->
+      <section id="history-view" class="saas-view">
+
+        <div class="history-card">
+
+          <div class="history-header">
+            <h2>Saved Generations</h2>
+
+            <button id="clearHistoryBtn">
+              Clear All Records
+            </button>
+          </div>
+
+          <div id="historyList"></div>
+
+        </div>
+
+      </section>
+
+      <!-- TEMPLATES -->
+      <section id="templates-view" class="saas-view">
+        <div class="templates-grid">
+
+          <div class="blueprint-card" data-template-value="LinkedIn Post">
+            <span class="tier-badge free">Free</span>
+            <h3>LinkedIn Post</h3>
+            <p>Authority-building industry frameworks.</p>
+          </div>
+
+          <div class="blueprint-card" data-template-value="X Thread">
+            <span class="tier-badge free">Free</span>
+            <h3>X Thread Matrix</h3>
+            <p>Hook-driven viral breakdowns.</p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="settings-view" class="saas-view">
+
+        <div class="settings-card">
+
+          <h3>Account & Token Configuration</h3>
+
+          <p>
+            Manage API settings and subscription status.
+          </p>
+
+          <div class="field">
+
+            <label for="apiKeyInput">
+              OpenAI API Key
+            </label>
+
+            <input
+              type="password"
+              id="apiKeyInput"
+              placeholder="sk-proj-..."
+            >
+
+            <button id="saveKeyBtn">
+              Save API Key
+            </button>
+
+          </div>
+
+          <div class="settings-data-table">
+
+            <div class="data-row">
+              <span>Current Tier</span>
+              <span id="profileTierDisplay"></span>
+            </div>
+
+            <div class="data-row">
+              <span>Status</span>
+              <span class="status-indicator active">
+                Connected
+              </span>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+</div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>

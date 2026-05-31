@@ -1,0 +1,300 @@
+/* ========================= Global & Variables ========================= */
+body {
+  margin: 0;
+  background-color: #0f172a;
+  color: white;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+* { box-sizing: border-box; }
+
+/* ========================= Layout Grid Structure ========================= */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ========================= Sidebar Dashboard Panel ========================= */
+.sidebar {
+  width: 260px;
+  background-color: #020617;
+  border-right: 1px solid #1e293b;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  flex-shrink: 0;
+}
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.nav-item {
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  text-align: left;
+  padding: 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background-color 0.2s, color 0.2s;
+}
+.nav-item:hover { background-color: #1e293b; color: white; }
+.nav-item.active { background-color: #2563eb; color: white; font-weight: 600; }
+
+/* ========================= Main Component Engine ========================= */
+.main-content {
+  flex: 1;
+  padding: 30px;
+  min-width: 0;
+}
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  gap: 20px;
+}
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.topbar h2 { margin: 0; font-size: 22px; }
+.topbar p { margin: 5px 0 0 0; color: #94a3b8; font-size: 14px; }
+
+/* ========================= SaaS Dynamic View Swapping ========================= */
+.saas-view {
+  display: none;
+  animation: fadeIn 0.25s ease-out;
+}
+.saas-view.active-view {
+  display: block;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================= Input Elements Workspace ========================= */
+.generator {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.row {
+  display: flex;
+  gap: 15px;
+}
+.field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+textarea, select, input {
+  width: 100%;
+  background-color: #111827;
+  color: white;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #1e293b;
+  font-size: 15px;
+  font-family: inherit;
+}
+textarea { min-height: 140px; resize: vertical; }
+textarea:focus, select:focus, input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+.textarea-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -10px;
+}
+#errorMessage { color: #f87171; margin: 0; font-size: 13px; }
+#charCount { color: #94a3b8; font-size: 13px; margin: 0; }
+
+/* ========================= Primary Button Arrays ========================= */
+button {
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+button:active { transform: scale(0.98); }
+.upgrade-btn { background-color: #2563eb; color: white; padding: 10px 18px; white-space: nowrap; }
+.button-group { display: flex; gap: 15px; }
+#generateBtn { background-color: #3b82f6; color: white; flex: 2; display: flex; justify-content: center; align-items: center; gap: 10px; }
+#regenerateBtn { background-color: #1e293b; color: white; flex: 1; }
+#exportBtn { background-color: #1e293b; color: #cbd5e1; width: 100%; margin-top: 10px; }
+
+/* ========================= Interface Loading Indicators ========================= */
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+.hidden { display: none !important; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ========================= Core Output Architecture ========================= */
+.output-card {
+  background-color: #111827;
+  padding: 25px;
+  border-radius: 16px;
+  border: 1px solid #1e293b;
+  margin-top: 10px;
+}
+.output-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 25px;
+  border-bottom: 1px solid #1e293b;
+  padding-bottom: 8px;
+}
+.output-header:first-of-type { margin-top: 0; }
+.output-header h3 { margin: 0; font-size: 16px; color: #3b82f6; }
+.copy-btn { background-color: #1e293b; color: #cbd5e1; padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+
+/* ========================= Markdown Parsing Elements ========================= */
+.markdown-body, .markdown-history-preview {
+  color: #cbd5e1;
+  line-height: 1.7;
+  font-size: 15px;
+  white-space: pre-wrap;
+  padding: 12px 0;
+}
+.markdown-body p { margin: 0 0 10px 0; }
+.markdown-body strong { color: white; }
+.markdown-body ul { padding-left: 20px; margin: 0 0 10px 0; }
+
+/* ========================= SaaS Premium Interactive Grids ========================= */
+.templates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.blueprint-card {
+  background-color: #111827;
+  border: 1px solid #1e293b;
+  border-radius: 16px;
+  padding: 25px;
+  position: relative;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.blueprint-card:hover {
+  border-color: #3b82f6;
+  transform: translateY(-2px);
+}
+.blueprint-card h3 {
+  margin: 10px 0 8px 0;
+  font-size: 18px;
+}
+.blueprint-card p {
+  margin: 0;
+  font-size: 14px;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+.blueprint-card.locked {
+  border-color: #334155;
+  background-color: rgba(17, 24, 39, 0.4);
+}
+.blueprint-card.locked:hover {
+  border-color: #f59e0b;
+}
+.tier-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+.tier-badge.free { background-color: #1e293b; color: #94a3b8; }
+.tier-badge.pro { background-color: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+/* ========================= Settings View Table Formatting ========================= */
+.settings-wrapper {
+  max-width: 600px;
+  margin: 0 auto;
+}
+.settings-card {
+  background-color: #111827;
+  border: 1px solid #1e293b;
+  border-radius: 16px;
+  padding: 30px;
+}
+.settings-card h3 { margin: 0 0 8px 0; font-size: 18px; }
+.settings-card p { margin: 0 0 25px 0; color: #94a3b8; font-size: 14px; }
+.settings-data-table {
+  display: flex;
+  flex-direction: column;
+}
+.data-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #1e293b;
+}
+.data-row:last-of-type { border-bottom: none; }
+.data-row span:first-of-type { color: #cbd5e1; font-size: 14px; }
+.status-indicator { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+.status-indicator.active { color: #10b981; }
+.status-indicator.active::before { content: ""; width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; display: inline-block; }
+
+/* ========================= Account History Logs ========================= */
+.history-card { background-color: #111827; padding: 25px; border-radius: 16px; border: 1px solid #1e293b; max-width: 720px; margin: 0 auto; }
+.history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.history-header h2 { margin: 0; font-size: 18px; }
+#clearHistoryBtn { background-color: #ef4444; color: white; padding: 8px 14px; font-size: 13px; border-radius: 8px; }
+.history-item { background-color: #0f172a; padding: 20px; margin-top: 15px; border-radius: 12px; border: 1px solid #1e293b; }
+.history-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.history-top h4 { margin: 0; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%; }
+.delete-btn { background-color: rgba(239, 68, 68, 0.15); color: #f87171; padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+
+/* ========================= Mobile Menu Architecture ========================= */
+.menu-toggle { display: none; background-color: #1e293b; color: white; padding: 10px 14px; border-radius: 10px; font-size: 18px; }
+
+@media (max-width: 768px) {
+  .app-layout { flex-direction: column; }
+  .menu-toggle { display: block; }
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 270px;
+    height: 100vh;
+    z-index: 1000;
+    transition: left 0.25s ease-out;
+    box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+  }
+  .sidebar.active { left: 0; }
+  .main-content { padding: 15px; }
+  .row { flex-direction: column; gap: 15px; }
+  .button-group { flex-direction: column; }
+  .hero h2 { font-size: 26px; }
+}
