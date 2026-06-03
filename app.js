@@ -33,6 +33,11 @@ const profileTierDisplay = document.getElementById("profileTierDisplay");
 const apiKeyInput = document.getElementById("apiKeyInput");
 const saveKeyBtn = document.getElementById("saveKeyBtn");
 
+// Dashboard Stats elements
+const statTotalGenerations = document.getElementById("statTotalGenerations");
+const statTotalWords = document.getElementById("statTotalWords");
+const statUsageCount = document.getElementById("statUsageCount");
+
 /* ========================= APP STATE OBJECT ========================= */
 let history = JSON.parse(localStorage.getItem("sharpHistory")) || [];
 let lastPrompt = "";
@@ -49,6 +54,65 @@ const MAX_FREE_GENERATIONS = 3;
 
 // Active API Token Memory Management Loader
 let activeSecretToken = localStorage.getItem("sharp_user_api_key") || "";
+
+// Active typewriter timer handles register
+let activeTypewriterTimeouts = [];
+
+/* ========================= XSS HTML SANITIZER ========================= */
+function sanitizeHTML(htmlString) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlString, 'text/html');
+  
+  // Recursively clean tags and attributes
+  const sanitizeNode = (node) => {
+    // Remove unsafe nodes
+    if (['script', 'iframe', 'object', 'embed', 'link', 'style'].includes(node.nodeName.toLowerCase())) {
+      node.remove();
+      return;
+    }
+    
+    // Remove unsafe attributes (event handlers, javascript: URIs)
+    if (node.attributes) {
+      Array.from(node.attributes).forEach(attr => {
+        const name = attr.name.toLowerCase();
+        const val = attr.value.toLowerCase();
+        if (name.startsWith('on') || val.startsWith('javascript:')) {
+          node.removeAttribute(attr.name);
+        }
+      });
+    }
+    
+    // Recurse child nodes
+    Array.from(node.childNodes).forEach(sanitizeNode);
+  };
+  
+  sanitizeNode(doc.body);
+  return doc.body.innerHTML;
+}
+
+/* ========================= DASHBOARD STATS REFRESHER ========================= */
+function refreshStats() {
+  if (statTotalGenerations) {
+    statTotalGenerations.innerText = history.length;
+  }
+  
+  if (statTotalWords) {
+    let wordCount = 0;
+    history.forEach(item => {
+      const fullText = `${item.topic || ""} ${item.hook || ""} ${item.content || ""} ${item.cta || ""} ${item.hashtags || ""}`;
+      wordCount += fullText.trim().split(/\s+/).filter(Boolean).length;
+    });
+    statTotalWords.innerText = wordCount;
+  }
+  
+  if (statUsageCount) {
+    if (userTier === "PRO") {
+      statUsageCount.innerText = "Unlimited ✨";
+    } else {
+      statUsageCount.innerText = `${freeUsageCount} / ${MAX_FREE_GENERATIONS}`;
+    }
+  }
+}
 
 /* ========================= SaaS ACCOUNT STATE REFRESHER ========================= */
 function refreshSaaSProfileUI() {
@@ -74,6 +138,21 @@ function refreshSaaSProfileUI() {
   if (apiKeyInput && activeSecretToken) {
     apiKeyInput.value = activeSecretToken;
   }
+
+  // Manage template locked visual states
+  const blueprintCards = document.querySelectorAll(".blueprint-card");
+  blueprintCards.forEach(card => {
+    const isPremium = ["Instagram Caption", "YouTube Script", "Blog Intro", "Product Description"].includes(card.getAttribute("data-template-value"));
+    if (isPremium) {
+      if (userTier === "PRO") {
+        card.classList.remove("locked");
+      } else {
+        card.classList.add("locked");
+      }
+    }
+  });
+
+  refreshStats();
 }
 
 // Attach a simulated subscription purchase sequence onto the top banner button
@@ -211,6 +290,33 @@ document.querySelectorAll(".copy-btn").forEach(btn => {
   });
 });
 
+/* ========================= TYPEWRITER DIRECT MARKDOWN INJECTOR ========================= */
+function clearAllActiveTypewriters() {
+  activeTypewriterTimeouts.forEach(t => clearTimeout(t));
+  activeTypewriterTimeouts = [];
+}
+
+function typeWriterMarkdown(element, text) {
+  element.innerHTML = "";
+  let i = 0;
+  let currentText = "";
+  
+  function frame() {
+    if (i < text.length) {
+      currentText += text.charAt(i);
+      if (typeof marked !== 'undefined') {
+        element.innerHTML = sanitizeHTML(marked.parse(currentText));
+      } else {
+        element.innerText = currentText;
+      }
+      i++;
+      const t = setTimeout(frame, 4);
+      activeTypewriterTimeouts.push(t);
+    }
+  }
+  frame();
+}
+
 /* ========================= ASYNC CORE ENGINE PIPELINE ========================= */
 async function runGenerationPipeline() {
   if (isGenerating) return;
@@ -231,7 +337,6 @@ async function runGenerationPipeline() {
       return;
     }
   }
-
 
   const topic = topicInput ? topicInput.value.trim() : "";
   if (!topic) { 
@@ -260,50 +365,56 @@ HOOK:
 CONTENT:
 [Write Body Paragraph System Layout Markdown]
 
+CTA:
+[Write Call to Action]
+
 HASHTAGS:
 [Write Tags Elements]`;
 
   lastPrompt = prompt;
   if (hookOutput) hookOutput.innerHTML = "Generating digital hook...";
   if (contentOutput) contentOutput.innerHTML = "Writing production blueprints...";
+  if (ctaOutput) ctaOutput.innerHTML = "Creating call to action...";
   if (hashtagOutput) hashtagOutput.innerHTML = "Querying social arrays...";
 
   try {
-    const response = await fetch(
-  "/api/generate",
-  {
-    method: "POST",
-    headers: {
+    const headers = {
       "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      topic,
-      platform: platformSelect.value,
-      tone: toneSelect.value,
-      keywords: keywordsInput.value
-    })
-  }
-);
+    };
+    if (activeSecretToken) {
+      headers["Authorization"] = `Bearer ${activeSecretToken}`;
+    }
+
+    const response = await fetch(
+      "/api/generate",
+      {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify({
+          topic,
+          platform: platformSelect.value,
+          tone: toneSelect.value,
+          keywords: keywordsInput.value
+        })
+      }
+    );
 
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error?.message || "Fault code upstream.");
+    if (!response.ok) throw new Error(data.error || "Fault code upstream.");
 
     const rawContent = data.result || "";
     
     // RegEx block processing logic
-    const hook =
-(rawContent.match(/HOOK:\s*([\s\S]*?)(?=CONTENT:)/i) || ["",""])[1].trim();
-
-const body =
-(rawContent.match(/CONTENT:\s*([\s\S]*?)(?=CTA:)/i) || ["",""])[1].trim();
-
-const cta =
-(rawContent.match(/CTA:\s*([\s\S]*?)(?=HASHTAGS:)/i) || ["",""])[1].trim();
-
-const tags =
-(rawContent.match(/HASHTAGS:\s*([\s\S]+)$/i) || ["","#SharpAI"])[1].trim();
+    const hook = (rawContent.match(/HOOK:\s*([\s\S]*?)(?=CONTENT:)/i) || ["",""])[1].trim();
+    const body = (rawContent.match(/CONTENT:\s*([\s\S]*?)(?=CTA:)/i) || ["",""])[1].trim();
+    const cta = (rawContent.match(/CTA:\s*([\s\S]*?)(?=HASHTAGS:)/i) || ["",""])[1].trim();
+    const tags = (rawContent.match(/HASHTAGS:\s*([\s\S]+)$/i) || ["","#SharpAI"])[1].trim();
+    
     // Store state info for text formatting compiler files downloads 
     currentActiveExportData = { topic, hook, body, tags };
+
+    // Clear active typewriters to prevent overlaps
+    clearAllActiveTypewriters();
 
     // Typewriter Markdown Renders
     if (hookOutput) typeWriterMarkdown(hookOutput, hook);
@@ -371,7 +482,10 @@ ${currentActiveExportData.hook}
 --- [2. BODY BLUEPRINT NARRATIVE] ---
 ${currentActiveExportData.body}
 
---- [3. TARGET SOCIAL ARRAYS / TAGS] ---
+--- [3. CALL TO ACTION] ---
+${currentActiveExportData.cta}
+
+--- [4. TARGET SOCIAL ARRAYS / TAGS] ---
 ${currentActiveExportData.tags}
 
 Processed automatically through Sharp AI Engine Studio.`;
@@ -393,27 +507,6 @@ Processed automatically through Sharp AI Engine Studio.`;
   });
 }
 
-/* ========================= TYPEWRITER DIRECT MARKDOWN INJECTOR ========================= */
-function typeWriterMarkdown(element, text) {
-  element.innerHTML = "";
-  let i = 0;
-  let currentText = "";
-  
-  function frame() {
-    if (i < text.length) {
-      currentText += text.charAt(i);
-      if (typeof marked !== 'undefined') {
-        element.innerHTML = marked.parse(currentText);
-      } else {
-        element.innerText = currentText;
-      }
-      i++;
-      setTimeout(frame, 4);
-    }
-  }
-  frame();
-}
-
 /* ========================= SAAS RENDER REGISTRY PANELS ========================= */
 function renderHistory() {
   if (!historyList) return;
@@ -430,7 +523,7 @@ function renderHistory() {
         <h4>${escapeHTML(item.topic)}</h4>
         <button class="delete-btn" data-id="${item.id}">Delete</button>
       </div>
-      <div class="markdown-history-preview" style="pointer-events: none;">${parsedContent}</div>
+      <div class="markdown-history-preview" style="pointer-events: none;">${sanitizeHTML(parsedContent)}</div>
     `;
 
     // Click anywhere on card (except delete button) to RESTORE back to system logs workspace
@@ -442,13 +535,17 @@ function renderHistory() {
       if (item.platform && platformSelect) platformSelect.value = item.platform;
       if (item.tone && toneSelect) toneSelect.value = item.tone;
 
+      clearAllActiveTypewriters();
+
       if (typeof marked !== 'undefined') {
-        if (hookOutput) hookOutput.innerHTML = marked.parse(item.hook || "No hook saved.");
-        if (contentOutput) contentOutput.innerHTML = marked.parse(item.content || "No content saved.");
-        if (hashtagOutput) hashtagOutput.innerHTML = marked.parse(item.hashtags || "No hashtags saved.");
+        if (hookOutput) hookOutput.innerHTML = sanitizeHTML(marked.parse(item.hook || "No hook saved."));
+        if (contentOutput) contentOutput.innerHTML = sanitizeHTML(marked.parse(item.content || "No content saved."));
+        if (ctaOutput) ctaOutput.innerHTML = sanitizeHTML(marked.parse(item.cta || "No cta saved."));
+        if (hashtagOutput) hashtagOutput.innerHTML = sanitizeHTML(marked.parse(item.hashtags || "No hashtags saved."));
       } else {
         if (hookOutput) hookOutput.innerText = item.hook || "";
         if (contentOutput) contentOutput.innerText = item.content || "";
+        if (ctaOutput) ctaOutput.innerText = item.cta || "";
         if (hashtagOutput) hashtagOutput.innerText = item.hashtags || "";
       }
 
@@ -456,6 +553,7 @@ function renderHistory() {
         topic: item.topic,
         hook: item.hook || "",
         body: item.content || "",
+        cta: item.cta || "",
         tags: item.hashtags || ""
       };
 
@@ -468,6 +566,7 @@ function renderHistory() {
       history = history.filter(h => h.id !== item.id);
       localStorage.setItem("sharpHistory", JSON.stringify(history));
       renderHistory();
+      refreshStats();
     });
     
     historyList.appendChild(block);
@@ -484,6 +583,7 @@ if (clearHistoryBtn) {
       history = [];
       localStorage.removeItem("sharpHistory");
       renderHistory();
+      refreshStats();
     }
   });
 }

@@ -1,17 +1,14 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
-const express = require("express");
-const cors = require("cors");
-const OpenAI = require("openai");
+import express from "express";
+import cors from "cors";
+import OpenAI from "openai";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
 
 app.get("/", (req, res) => {
   res.send("Sharp AI Backend Running");
@@ -19,12 +16,25 @@ app.get("/", (req, res) => {
 
 app.post("/api/generate", async (req, res) => {
   try {
-    const {
-      topic,
-      platform,
-      tone,
-      keywords
-    } = req.body;
+    const { topic, platform, tone, keywords } = req.body;
+    
+    // Check for client-supplied API key in Authorization header
+    const authHeader = req.headers.authorization;
+    let apiKey = process.env.OPENAI_API_KEY;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const clientKey = authHeader.substring(7).trim();
+      if (clientKey) {
+        apiKey = clientKey;
+      }
+    }
+
+    if (!apiKey) {
+      return res.status(400).json({
+        error: "OpenAI API Key is missing. Please configure it in your Settings."
+      });
+    }
+
+    const client = new OpenAI({ apiKey });
 
     const prompt = `
 Platform: ${platform}
@@ -35,8 +45,16 @@ Keywords: ${keywords}
 Generate:
 
 HOOK:
+[Attention grabbing hook]
+
 CONTENT:
+[Body content matching requirements]
+
+CTA:
+[Call to action]
+
 HASHTAGS:
+[Relevant hashtags]
 `;
 
     const response = await client.chat.completions.create({
@@ -55,7 +73,6 @@ HASHTAGS:
 
   } catch (error) {
     console.error(error);
-
     res.status(500).json({
       error: error.message
     });
@@ -63,7 +80,6 @@ HASHTAGS:
 });
 
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
