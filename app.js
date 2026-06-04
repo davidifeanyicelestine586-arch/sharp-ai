@@ -1,3 +1,7 @@
+/* ==========================================================================
+   SHARP AI - CORE CLIENT-SIDE SAAS APPLICATION LOGIC
+   ========================================================================== */
+
 /* ========================= ELEMENT SELECTORS ========================= */
 const generateBtn = document.getElementById("generateBtn");
 const generateText = document.getElementById("generateText");
@@ -38,6 +42,16 @@ const statTotalGenerations = document.getElementById("statTotalGenerations");
 const statTotalWords = document.getElementById("statTotalWords");
 const statUsageCount = document.getElementById("statUsageCount");
 
+// New UI Extensions
+const sidebarPlanBadge = document.getElementById("sidebarPlanBadge");
+const sidebarUsageDisplay = document.getElementById("sidebarUsageDisplay");
+const sidebarUpgradeBtn = document.getElementById("sidebarUpgradeBtn");
+const sidebarProfileStatus = document.getElementById("sidebarProfileStatus");
+const outputEmptyState = document.getElementById("outputEmptyState");
+const outputLoadingState = document.getElementById("outputLoadingState");
+const outputContentState = document.getElementById("outputContentState");
+const loadingStageText = document.getElementById("loadingStageText");
+
 /* ========================= APP STATE OBJECT ========================= */
 let history = JSON.parse(localStorage.getItem("sharpHistory")) || [];
 let lastPrompt = "";
@@ -57,6 +71,40 @@ let activeSecretToken = localStorage.getItem("sharp_user_api_key") || "";
 
 // Active typewriter timer handles register
 let activeTypewriterTimeouts = [];
+let progressiveMessageIntervals = [];
+
+/* ========================= CUSTOM TOAST SYSTEM ========================= */
+function showToast(message, type = "success") {
+  const container = document.getElementById("toast-container");
+  if (!container) return;
+  
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  
+  let icon = "✓";
+  if (type === "error") icon = "⚠";
+  if (type === "info") icon = "ℹ";
+  
+  toast.innerHTML = `
+    <span class="toast-icon">${icon}</span>
+    <span class="toast-message">${message}</span>
+  `;
+  
+  container.appendChild(toast);
+  
+  // Trigger animation frame
+  requestAnimationFrame(() => {
+    toast.classList.add("show");
+  });
+  
+  // Self destruct timer
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => {
+      toast.remove();
+    }, 300);
+  }, 4000);
+}
 
 /* ========================= XSS HTML SANITIZER ========================= */
 function sanitizeHTML(htmlString) {
@@ -116,19 +164,63 @@ function refreshStats() {
 
 /* ========================= SaaS ACCOUNT STATE REFRESHER ========================= */
 function refreshSaaSProfileUI() {
+  const isPro = userTier === "PRO";
+
+  // Primary Header Upgrader Buttons
   if (upgradeBtn) {
-    if (userTier === "PRO") {
+    if (isPro) {
       upgradeBtn.innerText = "Pro Active ✨";
-      upgradeBtn.style.background = "#10b981"; // Emerald green for premium state
+      upgradeBtn.style.background = "var(--success)"; 
     } else {
       upgradeBtn.innerText = "Upgrade Pro";
-      upgradeBtn.style.background = "#2563eb"; // Standard blue
+      upgradeBtn.style.background = "var(--primary-gradient)"; 
     }
   }
 
+  // Sidebar Upgrade Widgets
+  if (sidebarUpgradeBtn) {
+    if (isPro) {
+      sidebarUpgradeBtn.innerText = "Pro Account Active";
+      sidebarUpgradeBtn.style.background = "rgba(16, 185, 129, 0.12)";
+      sidebarUpgradeBtn.style.border = "1px solid rgba(16, 185, 129, 0.25)";
+      sidebarUpgradeBtn.style.color = "var(--success)";
+      sidebarUpgradeBtn.style.boxShadow = "none";
+      sidebarUpgradeBtn.disabled = true;
+    } else {
+      sidebarUpgradeBtn.innerText = "Upgrade to Pro";
+      sidebarUpgradeBtn.style.background = "var(--accent-gradient)";
+      sidebarUpgradeBtn.style.border = "none";
+      sidebarUpgradeBtn.style.color = "var(--bg-base)";
+      sidebarUpgradeBtn.style.boxShadow = "0 4px 15px rgba(251, 191, 36, 0.15)";
+      sidebarUpgradeBtn.disabled = false;
+    }
+  }
+
+  if (sidebarPlanBadge) {
+    sidebarPlanBadge.innerText = isPro ? "Pro Member" : "Free Plan";
+    sidebarPlanBadge.className = isPro ? "widget-badge pro-badge" : "widget-badge";
+    if (isPro) {
+      sidebarPlanBadge.style.color = "var(--success)";
+      sidebarPlanBadge.style.backgroundColor = "rgba(16, 185, 129, 0.1)";
+      sidebarPlanBadge.style.borderColor = "rgba(16, 185, 129, 0.2)";
+    } else {
+      sidebarPlanBadge.style.color = "var(--accent)";
+      sidebarPlanBadge.style.backgroundColor = "rgba(251, 191, 36, 0.12)";
+      sidebarPlanBadge.style.borderColor = "rgba(251, 191, 36, 0.2)";
+    }
+  }
+
+  if (sidebarUsageDisplay) {
+    sidebarUsageDisplay.innerText = isPro ? "Unlimited ✨" : `${freeUsageCount}/${MAX_FREE_GENERATIONS} runs`;
+  }
+
+  if (sidebarProfileStatus) {
+    sidebarProfileStatus.innerText = isPro ? "Premium Account" : "Free Tier Account";
+  }
+
   if (profileTierDisplay) {
-    if (userTier === "PRO") {
-      profileTierDisplay.innerHTML = `<strong style="color: #f59e0b;">Premium Pro Unlimited</strong>`;
+    if (isPro) {
+      profileTierDisplay.innerHTML = `<strong style="color: var(--accent);">Premium Pro Unlimited</strong>`;
     } else {
       profileTierDisplay.innerHTML = `<strong>Free Tier Trial (${freeUsageCount} / ${MAX_FREE_GENERATIONS} Uses)</strong>`;
     }
@@ -144,10 +236,25 @@ function refreshSaaSProfileUI() {
   blueprintCards.forEach(card => {
     const isPremium = ["Instagram Caption", "YouTube Script", "Blog Intro", "Product Description"].includes(card.getAttribute("data-template-value"));
     if (isPremium) {
-      if (userTier === "PRO") {
+      if (isPro) {
         card.classList.remove("locked");
+        const lockIndicator = card.querySelector(".lock-indicator");
+        if (lockIndicator) {
+          lockIndicator.innerHTML = `<span style="color: var(--success);">✓ Active</span>`;
+          lockIndicator.style.backgroundColor = "rgba(16, 185, 129, 0.1)";
+          lockIndicator.style.borderColor = "rgba(16, 185, 129, 0.25)";
+        }
       } else {
         card.classList.add("locked");
+        const lockIndicator = card.querySelector(".lock-indicator");
+        if (lockIndicator) {
+          lockIndicator.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span>Locked Pro</span>
+          `;
+          lockIndicator.style.backgroundColor = "rgba(251, 191, 36, 0.1)";
+          lockIndicator.style.borderColor = "rgba(251, 191, 36, 0.25)";
+        }
       }
     }
   });
@@ -155,19 +262,24 @@ function refreshSaaSProfileUI() {
   refreshStats();
 }
 
-// Attach a simulated subscription purchase sequence onto the top banner button
+// Subscription purchase simulation toggle sequence
+function toggleProSubscription() {
+  if (userTier === "FREE") {
+    userTier = "PRO";
+    showToast("SaaS Active: Premium Pro Mode activated! Locks removed.", "success");
+  } else {
+    userTier = "FREE";
+    showToast("SaaS Reset: Account reverted back to Free Trial specifications.", "info");
+  }
+  localStorage.setItem("sharpUserTier", userTier);
+  refreshSaaSProfileUI();
+}
+
 if (upgradeBtn) {
-  upgradeBtn.addEventListener("click", () => {
-    if (userTier === "FREE") {
-      userTier = "PRO";
-      alert("SaaS Simulation: Pro Subscription Plan Activated successfully! Premium block locks removed.");
-    } else {
-      userTier = "FREE";
-      alert("SaaS Simulation: Account reset back to Free Trial Mode parameters.");
-    }
-    localStorage.setItem("sharpUserTier", userTier);
-    refreshSaaSProfileUI();
-  });
+  upgradeBtn.addEventListener("click", toggleProSubscription);
+}
+if (sidebarUpgradeBtn) {
+  sidebarUpgradeBtn.addEventListener("click", toggleProSubscription);
 }
 
 // Settings Save Management Action
@@ -175,12 +287,12 @@ if (saveKeyBtn && apiKeyInput) {
   saveKeyBtn.addEventListener("click", () => {
     const freshToken = apiKeyInput.value.trim();
     if (!freshToken) {
-      alert("Please enter a valid OpenAI secret verification API key string token.");
+      showToast("Please enter a valid OpenAI secret API key token.", "error");
       return;
     }
     activeSecretToken = freshToken;
     localStorage.setItem("sharp_user_api_key", freshToken);
-    alert("API Token Configuration synchronized successfully into secure local storage.");
+    showToast("API token configuration synchronized into local storage.", "success");
   });
 }
 
@@ -204,7 +316,7 @@ function switchSaasViewportView(targetViewId) {
       viewSubtitle.innerText = "Create smarter content faster";
     } else {
       const matchingBtn = document.querySelector(`[data-target="${targetViewId}"]`);
-      const viewLabel = matchingBtn ? matchingBtn.innerText.trim() : "Workspace Panel";
+      const viewLabel = matchingBtn ? matchingBtn.querySelector("span").innerText.trim() : "Workspace Panel";
       viewTitle.innerText = viewLabel;
       viewSubtitle.innerText = `Manage your production profile ${viewLabel.toLowerCase()} space`;
     }
@@ -242,7 +354,7 @@ document.querySelectorAll(".blueprint-card").forEach(card => {
     
     // Gate premium templates under user tier condition limits
     if (isLocked && userTier !== "PRO") {
-      alert("This advanced content blueprint is restricted to Pro Plan subscribers. Please upgrade your profile access tier.");
+      showToast("Access Restricted: Upgrade to Pro to unlock advanced layouts.", "error");
       return;
     }
 
@@ -252,6 +364,7 @@ document.querySelectorAll(".blueprint-card").forEach(card => {
     }
 
     switchSaasViewportView("dashboard-view");
+    showToast(`Template layout "${valueToSelect}" loaded.`, "info");
   });
 });
 
@@ -262,12 +375,12 @@ if (topicInput) {
     if (charCount) charCount.innerText = `${length} / ${MAX_FREE_CHARS} characters`;
 
     if (length > MAX_FREE_CHARS) {
-      this.style.borderColor = "#ef4444";
-      if (charCount) charCount.style.color = "#ef4444";
+      this.style.borderColor = "var(--danger)";
+      if (charCount) charCount.style.color = "var(--danger)";
       if (generateBtn) generateBtn.disabled = true;
     } else {
-      this.style.borderColor = "#1e293b";
-      if (charCount) charCount.style.color = "#94a3b8";
+      this.style.borderColor = "var(--border-premium)";
+      if (charCount) charCount.style.color = "var(--text-muted)";
       if (generateBtn) generateBtn.disabled = false;
     }
     
@@ -277,17 +390,57 @@ if (topicInput) {
   });
 }
 
+/* ========================= SUGGESTION CHIPS INITIALIZER ========================= */
+document.querySelectorAll(".suggestion-chip").forEach(chip => {
+  chip.addEventListener("click", function() {
+    const topic = this.getAttribute("data-topic");
+    if (topicInput && topic) {
+      topicInput.value = topic;
+      topicInput.dispatchEvent(new Event("input"));
+      topicInput.focus();
+      showToast("Starter suggestion loaded!", "info");
+    }
+  });
+});
+
 /* ========================= CLIPBOARD OPERATIONS ========================= */
 document.querySelectorAll(".copy-btn").forEach(btn => {
   btn.addEventListener("click", function() {
     const targetElement = document.getElementById(this.getAttribute("data-target"));
     if (targetElement) {
       navigator.clipboard.writeText(targetElement.innerText).then(() => {
-        this.innerText = "Copied!";
-        setTimeout(() => this.innerText = "Copy", 1500);
+        this.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Copied!
+        `;
+        showToast("Copied to clipboard!", "success");
+        setTimeout(() => {
+          this.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            Copy
+          `;
+        }, 1800);
       });
     }
   });
+});
+
+/* ========================= EDITABLE SANDBOX DATA BINDINGS ========================= */
+const editableFields = [
+  { el: hookOutput, key: "hook" },
+  { el: contentOutput, key: "body" },
+  { el: ctaOutput, key: "cta" },
+  { el: hashtagOutput, key: "tags" }
+];
+
+editableFields.forEach(({ el, key }) => {
+  if (el) {
+    el.addEventListener("input", () => {
+      if (currentActiveExportData) {
+        currentActiveExportData[key] = el.innerText;
+      }
+    });
+  }
 });
 
 /* ========================= TYPEWRITER DIRECT MARKDOWN INJECTOR ========================= */
@@ -310,11 +463,41 @@ function typeWriterMarkdown(element, text) {
         element.innerText = currentText;
       }
       i++;
-      const t = setTimeout(frame, 4);
+      const t = setTimeout(frame, 3);
       activeTypewriterTimeouts.push(t);
     }
   }
   frame();
+}
+
+/* ========================= PROGRESSIVE STEP TIMER LOGIC ========================= */
+function clearProgressiveMessages() {
+  progressiveMessageIntervals.forEach(interval => clearInterval(interval));
+  progressiveMessageIntervals = [];
+}
+
+function runProgressiveSteps() {
+  if (!loadingStageText) return;
+  
+  const stages = [
+    "Establishing handshake with Sharp AI Content Engine...",
+    "Analyzing topic input and query parameters...",
+    "Formulating attention hooks...",
+    "Drafting core body content layouts...",
+    "Generating target CTAs & social tags...",
+    "Compiling generated assets...",
+    "Finalizing markup render layers..."
+  ];
+  
+  let currentIdx = 0;
+  loadingStageText.innerText = stages[0];
+  
+  const interval = setInterval(() => {
+    currentIdx = (currentIdx + 1) % stages.length;
+    loadingStageText.innerText = stages[currentIdx];
+  }, 2000);
+  
+  progressiveMessageIntervals.push(interval);
 }
 
 /* ========================= ASYNC CORE ENGINE PIPELINE ========================= */
@@ -324,7 +507,7 @@ async function runGenerationPipeline() {
   // Paywall Guard Clause Engine
   if (userTier === "FREE" && freeUsageCount >= MAX_FREE_GENERATIONS) {
     if (errorMessage) errorMessage.innerText = "Free allocation exhausted. Upgrade to Pro required.";
-    alert("SaaS Limit Reached: You have consumed your 3 Free trial executions. Click 'Upgrade Pro' on top to continue.");
+    showToast("Allocation exhausted: Upgrade to Pro to run more content.", "error");
     return;
   }
 
@@ -333,7 +516,7 @@ async function runGenerationPipeline() {
     const selectedOption = templateSelect.options[templateSelect.selectedIndex].text;
     const premiumTemplatesList = ["Instagram Caption", "YouTube Script", "Blog Intro", "Product Description"];
     if (userTier === "FREE" && premiumTemplatesList.some(item => selectedOption.includes(item))) {
-      alert("The selected template structure requires a valid Premium Pro activation state.");
+      showToast("Access Restricted: Select template requires Pro plan subscription.", "error");
       return;
     }
   }
@@ -341,6 +524,7 @@ async function runGenerationPipeline() {
   const topic = topicInput ? topicInput.value.trim() : "";
   if (!topic) { 
     if (errorMessage) errorMessage.innerText = "Please detail your generation topic."; 
+    showToast("Generation failed: Topic cannot be blank.", "error");
     return; 
   }
   if (errorMessage) errorMessage.innerText = "";
@@ -349,7 +533,16 @@ async function runGenerationPipeline() {
   if (generateBtn) generateBtn.disabled = true;
   if (regenerateBtn) regenerateBtn.disabled = true;
   if (generateSpinner) generateSpinner.classList.remove("hidden");
-  if (generateText) generateText.innerText = "Processing System Matrix...";
+  if (generateText) generateText.innerText = "Running Engine...";
+
+  // Control Viewport States for Sandbox Panels
+  if (outputEmptyState) outputEmptyState.classList.add("hidden");
+  if (outputContentState) outputContentState.classList.add("hidden");
+  if (outputLoadingState) outputLoadingState.classList.remove("hidden");
+
+  // Fire progress loaders
+  clearProgressiveMessages();
+  runProgressiveSteps();
 
   const prompt = `You are Sharp AI Content Engine.
 TEMPLATE: ${templateSelect ? templateSelect.value : ""}
@@ -372,10 +565,6 @@ HASHTAGS:
 [Write Tags Elements]`;
 
   lastPrompt = prompt;
-  if (hookOutput) hookOutput.innerHTML = "Generating digital hook...";
-  if (contentOutput) contentOutput.innerHTML = "Writing production blueprints...";
-  if (ctaOutput) ctaOutput.innerHTML = "Creating call to action...";
-  if (hashtagOutput) hashtagOutput.innerHTML = "Querying social arrays...";
 
   try {
     const headers = {
@@ -411,7 +600,11 @@ HASHTAGS:
     const tags = (rawContent.match(/HASHTAGS:\s*([\s\S]+)$/i) || ["","#SharpAI"])[1].trim();
     
     // Store state info for text formatting compiler files downloads 
-    currentActiveExportData = { topic, hook, body, tags };
+    currentActiveExportData = { topic, hook, body, cta, tags };
+
+    // Swap loading screen indicators out
+    if (outputLoadingState) outputLoadingState.classList.add("hidden");
+    if (outputContentState) outputContentState.classList.remove("hidden");
 
     // Clear active typewriters to prevent overlaps
     clearAllActiveTypewriters();
@@ -421,6 +614,8 @@ HASHTAGS:
     if (contentOutput) typeWriterMarkdown(contentOutput, body);
     if (ctaOutput) typeWriterMarkdown(ctaOutput, cta);
     if (hashtagOutput) typeWriterMarkdown(hashtagOutput, tags);
+
+    showToast("Generation completed successfully!", "success");
 
     // Increment free accounts quota counter metric
     if (userTier === "FREE") {
@@ -446,8 +641,11 @@ HASHTAGS:
     renderHistory();
 
   } catch (err) {
-    if (contentOutput) contentOutput.innerText = err.message;
+    showToast(err.message, "error");
+    if (outputLoadingState) outputLoadingState.classList.add("hidden");
+    if (outputEmptyState) outputEmptyState.classList.remove("hidden");
   } finally {
+    clearProgressiveMessages();
     isGenerating = false;
     if (generateBtn) generateBtn.disabled = false;
     if (regenerateBtn) regenerateBtn.disabled = false;
@@ -464,7 +662,7 @@ if (regenerateBtn) regenerateBtn.addEventListener("click", runGenerationPipeline
 if (exportBtn) {
   exportBtn.addEventListener("click", () => {
     if (!currentActiveExportData) {
-      alert("No active copy blocks located in viewport memory to compile an external workspace file.");
+      showToast("No active copy blocks located in viewport memory.", "error");
       return;
     }
 
@@ -504,13 +702,15 @@ Processed automatically through Sharp AI Engine Studio.`;
     
     document.body.removeChild(targetHiddenAnchor);
     URL.revokeObjectURL(downloadUrl);
+    
+    showToast("Export package bundle downloaded successfully!", "success");
   });
 }
 
 /* ========================= SAAS RENDER REGISTRY PANELS ========================= */
 function renderHistory() {
   if (!historyList) return;
-  historyList.innerHTML = history.length === 0 ? `<p style="color: #94a3b8; font-size: 14px;">No histories tracked under your user token identity.</p>` : "";
+  historyList.innerHTML = history.length === 0 ? `<p style="color: var(--text-secondary); font-size: 14px; text-align: center; padding: 20px 0;">No histories tracked under your account.</p>` : "";
   
   history.forEach(item => {
     const block = document.createElement("div");
@@ -558,7 +758,14 @@ function renderHistory() {
       };
 
       if (topicInput) topicInput.dispatchEvent(new Event('input'));
+      
+      // Swap sandbox panels
+      if (outputEmptyState) outputEmptyState.classList.add("hidden");
+      if (outputLoadingState) outputLoadingState.classList.add("hidden");
+      if (outputContentState) outputContentState.classList.remove("hidden");
+
       switchSaasViewportView("dashboard-view");
+      showToast("History asset loaded into active sandbox.", "success");
     });
 
     block.querySelector(".delete-btn").addEventListener("click", (e) => {
@@ -567,6 +774,7 @@ function renderHistory() {
       localStorage.setItem("sharpHistory", JSON.stringify(history));
       renderHistory();
       refreshStats();
+      showToast("History item deleted.", "info");
     });
     
     historyList.appendChild(block);
@@ -579,11 +787,13 @@ function escapeHTML(s) {
 
 if (clearHistoryBtn) {
   clearHistoryBtn.addEventListener("click", () => {
+    // Replaced confirm() with sleek confirm UI logic but since native works, let's keep it simple or prompt custom
     if (confirm("Purge local history database?")) {
       history = [];
       localStorage.removeItem("sharpHistory");
       renderHistory();
       refreshStats();
+      showToast("History record cleared successfully.", "success");
     }
   });
 }
