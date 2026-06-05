@@ -820,4 +820,24 @@ if (clearHistoryBtn) {
 document.addEventListener("DOMContentLoaded", () => {
   renderHistory();
   refreshSaaSProfileUI();
+
+  // Check for hash in URL to switch view on load
+  const hash = window.location.hash;
+  if (hash) {
+    const targetViewId = hash.replace('#', '');
+    if (document.getElementById(targetViewId)) {
+      switchSaasViewportView(targetViewId);
+    }
+  }
+});
+
+// Listen for hash changes
+window.addEventListener('hashchange', () => {
+  const hash = window.location.hash;
+  if (hash) {
+    const targetViewId = hash.replace('#', '');
+    if (document.getElementById(targetViewId)) {
+      switchSaasViewportView(targetViewId);
+    }
+  }
 });
