@@ -1,4 +1,6 @@
 import OpenAI from "openai";
+import { getUserStatus, incrementUsage } from "../lib/usage.js";
+import { PLANS } from "../lib/plans.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -9,6 +11,17 @@ export default async function handler(req, res) {
 
   try {
     const { topic, platform, tone, keywords } = req.body;
+
+    // 1. Check Usage Limit
+    const userStatus = await getUserStatus();
+    const plan = Object.values(PLANS).find(p => p.id === userStatus.plan);
+    
+    if (plan.generationLimit !== -1 && userStatus.usage >= plan.generationLimit) {
+      return res.status(403).json({
+        error: "Usage limit reached. Please upgrade to Pro for unlimited generations.",
+        limitReached: true
+      });
+    }
 
     const authHeader = req.headers.authorization;
     let apiKey = process.env.OPENAI_API_KEY;
@@ -70,6 +83,9 @@ HASHTAGS:
         }
       ]
     });
+
+    // 2. Increment Usage
+    await incrementUsage();
 
     return res.status(200).json({
       result: response.choices[0].message.content
