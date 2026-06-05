@@ -30,6 +30,7 @@ const viewTitle = document.getElementById("viewTitle");
 const viewSubtitle = document.getElementById("viewSubtitle");
 const menuToggle = document.getElementById("menuToggle");
 const sidebar = document.getElementById("sidebar");
+const sidebarOverlay = document.getElementById("sidebarOverlay");
 
 // SaaS DOM Extensions
 const upgradeBtn = document.getElementById("upgradeBtn");
@@ -322,8 +323,10 @@ function switchSaasViewportView(targetViewId) {
     }
   }
 
+  // Close sidebar and overlay on mobile navigation
   if (sidebar && sidebar.classList.contains("active")) {
     sidebar.classList.remove("active");
+    if (sidebarOverlay) sidebarOverlay.classList.remove("active");
   }
 }
 
@@ -336,13 +339,27 @@ navItems.forEach(item => {
 
 /* ========================= MOBILE NAVIGATION DRAWER ========================= */
 if (menuToggle && sidebar) {
+  const toggleSidebar = () => {
+    sidebar.classList.toggle("active");
+    if (sidebarOverlay) sidebarOverlay.classList.toggle("active");
+  };
+
   menuToggle.addEventListener("click", (e) => {
     e.stopPropagation();
-    sidebar.classList.toggle("active");
+    toggleSidebar();
   });
-  document.addEventListener("click", (e) => {
-    if (!sidebar.contains(e.target) && sidebar.classList.contains("active")) {
+
+  if (sidebarOverlay) {
+    sidebarOverlay.addEventListener("click", () => {
       sidebar.classList.remove("active");
+      sidebarOverlay.classList.remove("active");
+    });
+  }
+
+  document.addEventListener("click", (e) => {
+    if (!sidebar.contains(e.target) && !menuToggle.contains(e.target) && sidebar.classList.contains("active")) {
+      sidebar.classList.remove("active");
+      if (sidebarOverlay) sidebarOverlay.classList.remove("active");
     }
   });
 }
