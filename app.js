@@ -296,44 +296,138 @@ if (saveKeyBtn && apiKeyInput) {
 }
 
 /* ========================= SaaS VIEW ROUTER SWITCH ========================= */
-function switchSaasViewportView(targetViewId) {
-  navItems.forEach(btn => {
-    btn.classList.remove("active");
-    if (btn.getAttribute("data-target") === targetViewId) {
-      btn.classList.add("active");
+/**
+ * NavigationManager handles smooth scrolling, scrollspy, 
+ * and mobile navigation behavior.
+ */
+const NavigationManager = {
+  init() {
+    this.bindEvents();
+    this.initScrollSpy();
+    this.handleInitialHash();
+  },
+
+  bindEvents() {
+    // 1. Sidebar and Footer Links
+    const allLinks = document.querySelectorAll('.nav-item, .nav-item-link, .footer-links a');
+    
+    allLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        const targetId = link.getAttribute('data-target') || 
+                        (link.getAttribute('href') && link.getAttribute('href').startsWith('#') 
+                          ? link.getAttribute('href').substring(1) 
+                          : null);
+        
+        if (targetId) {
+          const targetElement = document.getElementById(targetId);
+          if (targetElement) {
+            e.preventDefault();
+            this.scrollToSection(targetId);
+            
+            // Update URL hash without jumping
+            history.pushState(null, null, `#${targetId}`);
+            
+            // Close mobile menu if open
+            this.closeMobileMenu();
+          }
+        }
+      });
+    });
+
+    // 2. Hash Change Listener
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash.substring(1);
+      if (hash) this.scrollToSection(hash, false);
+    });
+  },
+
+  scrollToSection(targetId, smooth = true) {
+    const targetElement = document.getElementById(targetId);
+    if (!targetElement) return;
+
+    // Smooth scroll to the target
+    targetElement.scrollIntoView({
+      behavior: smooth ? 'smooth' : 'auto',
+      block: 'start'
+    });
+
+    // Set focus for accessibility
+    targetElement.setAttribute('tabindex', '-1');
+    targetElement.focus({ preventScroll: true });
+
+    // Update the active state in JS (ScrollSpy will also handle this)
+    this.updateActiveUI(targetId);
+  },
+
+  updateActiveUI(activeId) {
+    // Update Sidebar/Header active states
+    navItems.forEach(btn => {
+      const target = btn.getAttribute('data-target');
+      btn.classList.toggle('active', target === activeId);
+    });
+
+    // Update Footer Link active states
+    document.querySelectorAll('.nav-item-link').forEach(link => {
+      const href = link.getAttribute('href');
+      link.classList.toggle('active', href === `#${activeId}`);
+    });
+
+    // Update View Title/Subtitle
+    if (viewTitle && viewSubtitle) {
+      if (activeId === "dashboard-view") {
+        viewTitle.innerText = "AI Content Generator";
+        viewSubtitle.innerText = "Create smarter content faster";
+      } else {
+        const matchingBtn = document.querySelector(`[data-target="${activeId}"]`);
+        const viewLabel = matchingBtn ? matchingBtn.querySelector("span").innerText.trim() : "Workspace Panel";
+        viewTitle.innerText = viewLabel;
+        viewSubtitle.innerText = `Manage your production profile ${viewLabel.toLowerCase()} space`;
+      }
     }
-  });
 
-  saasViews.forEach(view => view.classList.remove("active-view"));
-  const activeViewportSection = document.getElementById(targetViewId);
-  if (activeViewportSection) activeViewportSection.classList.add("active-view");
+    // Toggle active-view class for potential CSS hooks
+    saasViews.forEach(view => {
+      view.classList.toggle('active-view', view.id === activeId);
+    });
+  },
 
-  // Dynamic Title Management
-  if (viewTitle && viewSubtitle) {
-    if (targetViewId === "dashboard-view") {
-      viewTitle.innerText = "AI Content Generator";
-      viewSubtitle.innerText = "Create smarter content faster";
-    } else {
-      const matchingBtn = document.querySelector(`[data-target="${targetViewId}"]`);
-      const viewLabel = matchingBtn ? matchingBtn.querySelector("span").innerText.trim() : "Workspace Panel";
-      viewTitle.innerText = viewLabel;
-      viewSubtitle.innerText = `Manage your production profile ${viewLabel.toLowerCase()} space`;
+  initScrollSpy() {
+    const options = {
+      root: null,
+      rootMargin: '-10% 0px -80% 0px',
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          this.updateActiveUI(entry.target.id);
+        }
+      });
+    }, options);
+
+    saasViews.forEach(view => observer.observe(view));
+  },
+
+  handleInitialHash() {
+    const hash = window.location.hash.substring(1);
+    if (hash && document.getElementById(hash)) {
+      // Delay slightly to ensure layout is ready
+      setTimeout(() => this.scrollToSection(hash, false), 100);
+    }
+  },
+
+  closeMobileMenu() {
+    if (sidebar && sidebar.classList.contains("active")) {
+      sidebar.classList.remove("active");
+      if (sidebarOverlay) sidebarOverlay.classList.remove("active");
     }
   }
+};
 
-  // Close sidebar and overlay on mobile navigation
-  if (sidebar && sidebar.classList.contains("active")) {
-    sidebar.classList.remove("active");
-    if (sidebarOverlay) sidebarOverlay.classList.remove("active");
-  }
-}
-
-navItems.forEach(item => {
-  item.addEventListener("click", function() {
-    const targetViewId = this.getAttribute("data-target");
-    switchSaasViewportView(targetViewId);
-  });
-});
+// Replace the old event listeners with NavigationManager
+// navItems.forEach(item => { ... }); 
+// window.addEventListener('hashchange', () => { ... });
 
 /* ========================= MOBILE NAVIGATION DRAWER ========================= */
 if (menuToggle && sidebar) {
@@ -378,7 +472,9 @@ document.querySelectorAll(".blueprint-card").forEach(card => {
       templateSelect.value = valueToSelect;
     }
 
-    switchSaasViewportView("dashboard-view");
+    if (typeof NavigationManager !== 'undefined') {
+      NavigationManager.scrollToSection("dashboard-view");
+    }
     showToast(`Template layout "${valueToSelect}" loaded.`, "info");
   });
 });
@@ -775,7 +871,9 @@ function renderHistory() {
       if (outputLoadingState) outputLoadingState.classList.add("hidden");
       if (outputContentState) outputContentState.classList.remove("hidden");
 
-      switchSaasViewportView("dashboard-view");
+      if (typeof NavigationManager !== 'undefined') {
+        NavigationManager.scrollToSection("dashboard-view");
+      }
       showToast("History asset loaded into active sandbox.", "success");
     });
 
@@ -814,23 +912,8 @@ document.addEventListener("DOMContentLoaded", () => {
   renderHistory();
   fetchUserStatus();
 
-  // Check for hash in URL to switch view on load
-  const hash = window.location.hash;
-  if (hash) {
-    const targetViewId = hash.replace('#', '');
-    if (document.getElementById(targetViewId)) {
-      switchSaasViewportView(targetViewId);
-    }
-  }
-});
-
-// Listen for hash changes
-window.addEventListener('hashchange', () => {
-  const hash = window.location.hash;
-  if (hash) {
-    const targetViewId = hash.replace('#', '');
-    if (document.getElementById(targetViewId)) {
-      switchSaasViewportView(targetViewId);
-    }
+  // Initialize Navigation Manager
+  if (typeof NavigationManager !== 'undefined') {
+    NavigationManager.init();
   }
 });

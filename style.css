@@ -655,9 +655,14 @@ h1, h2, h3, h4, .view-title {
   transition: var(--transition);
 }
 
-.footer-links a:hover {
+.footer-links a:hover,
+.footer-links a.active {
   color: var(--primary);
   padding-left: 4px;
+}
+
+.footer-links a.active {
+  font-weight: 700;
 }
 
 .footer-bottom {
@@ -688,12 +693,18 @@ h1, h2, h3, h4, .view-title {
    SAAS dynamic multi-view engine
    ========================================================================== */
 .saas-view {
-  display: none;
-  animation: viewFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  display: block;
+  opacity: 0.6;
+  transform: translateY(10px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  scroll-margin-top: calc(var(--topbar-height) + 20px);
+  padding-bottom: var(--space-12);
+  min-height: calc(100vh - var(--topbar-height) - var(--space-12));
 }
 
 .saas-view.active-view {
-  display: block;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 @keyframes viewFadeIn {
@@ -1929,6 +1940,16 @@ select {
   
   .toast-container {
     bottom: var(--space-4);
+    left: var(--space-4);
+    right: var(--space-4);
+  }
+  
+  .toast {
+    width: 100%;
+  }
+}
+
+space-4);
     left: var(--space-4);
     right: var(--space-4);
   }
