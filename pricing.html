@@ -29,8 +29,10 @@
               <li>Basic Templates</li>
               <li>Standard Support</li>
             </ul>
+            <button class="pricing-btn" onclick="subscribe('free')">Current Plan</button>
           </div>
-          <div class="contact-card" style="border-color: var(--primary);">
+          <div class="contact-card pro-card" style="border-color: var(--primary);">
+            <div class="popular-badge">Most Popular</div>
             <h3>Pro</h3>
             <p><strong>$29/mo</strong></p>
             <ul>
@@ -39,6 +41,7 @@
               <li>Priority Support</li>
               <li>Export Bundle</li>
             </ul>
+            <button class="pricing-btn pro-btn" onclick="subscribe('pro')">Upgrade to Pro</button>
           </div>
           <div class="contact-card">
             <h3>Enterprise</h3>
@@ -49,11 +52,119 @@
               <li>Dedicated Success Manager</li>
               <li>SLA Guarantees</li>
             </ul>
+            <button class="pricing-btn" onclick="window.location.href='contact.html'">Contact Sales</button>
           </div>
         </div>
       </article>
+
+      <div id="success-overlay" class="hidden">
+        <div class="success-content">
+          <div class="success-icon">✨</div>
+          <h2>Upgrade Successful!</h2>
+          <p>Welcome to the Pro family. Your account has been upgraded.</p>
+          <button class="pricing-btn pro-btn" onclick="window.location.href='index.html'">Go to Dashboard</button>
+        </div>
+      </div>
     </div>
   </main>
 </div>
+
+<style>
+  .pricing-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.2s;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+  }
+  .pro-btn {
+    background: var(--primary-gradient);
+    color: white;
+  }
+  .pro-card {
+    position: relative;
+    transform: scale(1.05);
+    z-index: 1;
+    background: rgba(var(--primary-rgb), 0.03);
+  }
+  .popular-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary);
+    color: white;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+  }
+  .hidden { display: none; }
+  #success-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .success-content {
+    background: var(--bg-card);
+    padding: 40px;
+    border-radius: 16px;
+    text-align: center;
+    max-width: 400px;
+    border: 1px solid var(--border-color);
+  }
+  .success-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+  }
+</style>
+
+<script>
+  async function subscribe(planId) {
+    if (planId === 'free') {
+      window.location.href = 'index.html';
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/subscriptions/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId })
+      });
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      alert('Checkout failed: ' + error.message);
+    }
+  }
+
+  // Handle mock success
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('mock_success') === 'true') {
+    const planId = urlParams.get('plan');
+    fetch('/api/subscriptions/mock-success', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ planId })
+    }).then(() => {
+      document.getElementById('success-overlay').classList.remove('hidden');
+    });
+  }
+</script>
 </body>
 </html>

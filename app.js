@@ -64,9 +64,9 @@ let currentActiveExportData = null;
 
 // SaaS Account Configuration Parameters
 const MAX_FREE_CHARS = 500;
-let userTier = localStorage.getItem("sharpUserTier") || "FREE"; // Options: FREE, PRO
-let freeUsageCount = parseInt(localStorage.getItem("sharpFreeUsageCount")) || 0;
-const MAX_FREE_GENERATIONS = 3;
+let userTier = "FREE"; // Options: FREE, PRO
+let currentUsage = 0;
+let usageLimit = 3;
 
 // Active API Token Memory Management Loader
 let activeSecretToken = localStorage.getItem("sharp_user_api_key") || "";
@@ -159,12 +159,32 @@ function refreshStats() {
     if (userTier === "PRO") {
       statUsageCount.innerText = "Unlimited ✨";
     } else {
-      statUsageCount.innerText = `${freeUsageCount} / ${MAX_FREE_GENERATIONS}`;
+      statUsageCount.innerText = `${currentUsage} / ${usageLimit}`;
     }
   }
 }
 
 /* ========================= SaaS ACCOUNT STATE REFRESHER ========================= */
+async function fetchUserStatus() {
+  try {
+    const response = await fetch("/api/user/status");
+    const data = await response.json();
+    
+    userTier = data.plan.toUpperCase();
+    currentUsage = data.usage;
+    
+    // Fetch plan details to get the limit
+    const plansResponse = await fetch("/api/plans");
+    const plans = await plansResponse.json();
+    const userPlan = plans[userTier] || plans.FREE;
+    usageLimit = userPlan.generationLimit;
+
+    refreshSaaSProfileUI();
+  } catch (error) {
+    console.error("Failed to fetch user status:", error);
+  }
+}
+
 function refreshSaaSProfileUI() {
   const isPro = userTier === "PRO";
 
@@ -173,9 +193,11 @@ function refreshSaaSProfileUI() {
     if (isPro) {
       upgradeBtn.innerText = "Pro Active ✨";
       upgradeBtn.style.background = "var(--success)"; 
+      upgradeBtn.onclick = () => showToast("You are already on the Pro plan!", "info");
     } else {
       upgradeBtn.innerText = "Upgrade Pro";
       upgradeBtn.style.background = "var(--primary-gradient)"; 
+      upgradeBtn.onclick = () => window.location.href = 'pricing.html';
     }
   }
 
@@ -187,14 +209,14 @@ function refreshSaaSProfileUI() {
       sidebarUpgradeBtn.style.border = "1px solid rgba(16, 185, 129, 0.25)";
       sidebarUpgradeBtn.style.color = "var(--success)";
       sidebarUpgradeBtn.style.boxShadow = "none";
-      sidebarUpgradeBtn.disabled = true;
+      sidebarUpgradeBtn.onclick = () => showToast("You are already on the Pro plan!", "info");
     } else {
       sidebarUpgradeBtn.innerText = "Upgrade to Pro";
       sidebarUpgradeBtn.style.background = "var(--accent-gradient)";
       sidebarUpgradeBtn.style.border = "none";
       sidebarUpgradeBtn.style.color = "var(--bg-base)";
       sidebarUpgradeBtn.style.boxShadow = "0 4px 15px rgba(251, 191, 36, 0.15)";
-      sidebarUpgradeBtn.disabled = false;
+      sidebarUpgradeBtn.onclick = () => window.location.href = 'pricing.html';
     }
   }
 
@@ -213,7 +235,7 @@ function refreshSaaSProfileUI() {
   }
 
   if (sidebarUsageDisplay) {
-    sidebarUsageDisplay.innerText = isPro ? "Unlimited ✨" : `${freeUsageCount}/${MAX_FREE_GENERATIONS} runs`;
+    sidebarUsageDisplay.innerText = isPro ? "Unlimited ✨" : `${currentUsage}/${usageLimit} runs`;
   }
 
   if (sidebarProfileStatus) {
@@ -224,13 +246,8 @@ function refreshSaaSProfileUI() {
     if (isPro) {
       profileTierDisplay.innerHTML = `<strong style="color: var(--accent);">Premium Pro Unlimited</strong>`;
     } else {
-      profileTierDisplay.innerHTML = `<strong>Free Tier Trial (${freeUsageCount} / ${MAX_FREE_GENERATIONS} Uses)</strong>`;
+      profileTierDisplay.innerHTML = `<strong>Free Tier Trial (${currentUsage} / ${usageLimit} Uses)</strong>`;
     }
-  }
-
-  // Pre-populate input configurations fields inside Settings Panel
-  if (apiKeyInput && activeSecretToken) {
-    apiKeyInput.value = activeSecretToken;
   }
 
   // Manage template locked visual states
@@ -262,26 +279,6 @@ function refreshSaaSProfileUI() {
   });
 
   refreshStats();
-}
-
-// Subscription purchase simulation toggle sequence
-function toggleProSubscription() {
-  if (userTier === "FREE") {
-    userTier = "PRO";
-    showToast("SaaS Active: Premium Pro Mode activated! Locks removed.", "success");
-  } else {
-    userTier = "FREE";
-    showToast("SaaS Reset: Account reverted back to Free Trial specifications.", "info");
-  }
-  localStorage.setItem("sharpUserTier", userTier);
-  refreshSaaSProfileUI();
-}
-
-if (upgradeBtn) {
-  upgradeBtn.addEventListener("click", toggleProSubscription);
-}
-if (sidebarUpgradeBtn) {
-  sidebarUpgradeBtn.addEventListener("click", toggleProSubscription);
 }
 
 // Settings Save Management Action
@@ -523,7 +520,7 @@ async function runGenerationPipeline() {
   if (isGenerating) return;
 
   // Paywall Guard Clause Engine
-  if (userTier === "FREE" && freeUsageCount >= MAX_FREE_GENERATIONS) {
+  if (userTier === "FREE" && currentUsage >= usageLimit) {
     if (errorMessage) errorMessage.innerText = "Free allocation exhausted. Upgrade to Pro required.";
     showToast("Allocation exhausted: Upgrade to Pro to run more content.", "error");
     return;
@@ -635,12 +632,8 @@ HASHTAGS:
 
     showToast("Generation completed successfully!", "success");
 
-    // Increment free accounts quota counter metric
-    if (userTier === "FREE") {
-      freeUsageCount++;
-      localStorage.setItem("sharpFreeUsageCount", freeUsageCount);
-      refreshSaaSProfileUI();
-    }
+    // Refresh user status from backend
+    await fetchUserStatus();
 
     // Unshift data arrays matrix tracking logic
     history.unshift({ 
@@ -819,7 +812,7 @@ if (clearHistoryBtn) {
 // App Initiation Entry Routine Call
 document.addEventListener("DOMContentLoaded", () => {
   renderHistory();
-  refreshSaaSProfileUI();
+  fetchUserStatus();
 
   // Check for hash in URL to switch view on load
   const hash = window.location.hash;
