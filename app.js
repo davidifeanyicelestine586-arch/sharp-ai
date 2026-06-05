@@ -821,24 +821,3 @@ document.addEventListener("DOMContentLoaded", () => {
   renderHistory();
   refreshSaaSProfileUI();
 });
-return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-if (clearHistoryBtn) {
-  clearHistoryBtn.addEventListener("click", () => {
-    // Replaced confirm() with sleek confirm UI logic but since native works, let's keep it simple or prompt custom
-    if (confirm("Purge local history database?")) {
-      history = [];
-      localStorage.removeItem("sharpHistory");
-      renderHistory();
-      refreshStats();
-      showToast("History record cleared successfully.", "success");
-    }
-  });
-}
-
-// App Initiation Entry Routine Call
-document.addEventListener("DOMContentLoaded", () => {
-  renderHistory();
-  refreshSaaSProfileUI();
-});
