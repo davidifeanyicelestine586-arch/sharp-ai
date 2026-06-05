@@ -1662,6 +1662,115 @@ select {
 .toast-info .toast-icon { color: var(--primary); }
 
 /* ==========================================================================
+   INFORMATION PAGES (About, Privacy, etc.)
+   ========================================================================== */
+.info-page-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-12) var(--space-4);
+  animation: viewFadeIn 0.4s ease-out;
+}
+
+.info-section {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-premium);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
+  margin-bottom: var(--space-8);
+  backdrop-filter: blur(12px);
+}
+
+.info-section h1 {
+  font-size: 32px;
+  margin-bottom: var(--space-4);
+  color: var(--text-white);
+  background: linear-gradient(135deg, #ffffff 60%, #c7d2fe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.info-section h2 {
+  font-size: 24px;
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-4);
+  color: var(--text-white);
+}
+
+.info-section h3 {
+  font-size: 18px;
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-3);
+  color: var(--text-primary);
+}
+
+.info-section p {
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: var(--space-4);
+}
+
+.info-section ul, .info-section ol {
+  margin-bottom: var(--space-6);
+  padding-left: var(--space-6);
+  color: var(--text-secondary);
+}
+
+.info-section li {
+  margin-bottom: var(--space-2);
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-6);
+  margin-top: var(--space-8);
+}
+
+.contact-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-premium);
+  padding: var(--space-6);
+  border-radius: var(--radius-md);
+  text-align: center;
+  transition: var(--transition);
+}
+
+.contact-card:hover {
+  border-color: var(--primary);
+  background: rgba(99, 102, 241, 0.05);
+  transform: translateY(-2px);
+}
+
+.contact-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--primary-glow);
+  color: var(--primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-4);
+}
+
+/* Back Button */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: var(--space-6);
+  transition: var(--transition);
+}
+
+.back-btn:hover {
+  color: var(--primary);
+}
+
+/* ==========================================================================
    MOBILE MENU OVERLAYS & RESPONSIVENESS OVERRIDES
    ========================================================================== */
 .menu-toggle {
