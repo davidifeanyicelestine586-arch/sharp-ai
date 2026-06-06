@@ -5,8 +5,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "lint": "eslint . --ext .js,.html",
-    "build": "npm run lint && echo 'Build successful'"
+    "lint": "eslint . --ext .js,.html"
   },
   "dependencies": {
     "cors": "^2.8.5",

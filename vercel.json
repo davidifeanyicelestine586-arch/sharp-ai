@@ -1,1 +1,11 @@
-{}
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/api/user/status", "destination": "/api/user-status.js" },
+    { "source": "/api/subscriptions/checkout", "destination": "/api/checkout.js" },
+    { "source": "/api/subscriptions/mock-success", "destination": "/api/mock-success.js" },
+    { "source": "/api/plans", "destination": "/api/plans.js" },
+    { "source": "/api/generate", "destination": "/api/generate.js" }
+  ],
+  "cleanUrls": true
+}
