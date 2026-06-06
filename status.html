@@ -7,38 +7,60 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="/style.css">
 </head>
 <body>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="app-layout">
-  <main class="content" style="padding: 0;">
-    <div class="info-page-container">
-      <a href="index.html" class="back-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-        Back to Dashboard
-      </a>
-      <article class="info-section">
-        <h1>System Status</h1>
-        <div class="status-indicator active" style="font-size: 24px; margin-bottom: 32px;">
-          All Systems Operational
-        </div>
-        <div class="settings-data-table">
-          <div class="data-row">
-            <span class="row-label">Content Engine</span>
-            <span class="status-indicator active">Operational</span>
+  <!-- SIDEBAR PLACEHOLDER -->
+  <div id="sidebar-container"></div>
+  
+  <main class="main-content">
+    <!-- TOPBAR PLACEHOLDER -->
+    <div id="topbar-container"></div>
+
+    <div class="view-viewport">
+      <div class="info-page-container">
+        <a href="/dashboard/" class="back-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          Back to Dashboard
+        </a>
+        <article class="info-section">
+          <h1>System Status</h1>
+          <div class="status-indicator active" style="font-size: 24px; margin-bottom: 32px; gap: 16px;">
+            <span class="status-dot" style="width: 12px; height: 12px;"></span>
+            All Systems Operational
           </div>
-          <div class="data-row">
-            <span class="row-label">API Gateway</span>
-            <span class="status-indicator active">Operational</span>
+          <div class="settings-data-table">
+            <div class="data-row">
+              <span class="row-label">Content Engine</span>
+              <span class="status-indicator active">Operational</span>
+            </div>
+            <div class="data-row">
+              <span class="row-label">API Gateway</span>
+              <span class="status-indicator active">Operational</span>
+            </div>
+            <div class="data-row">
+              <span class="row-label">Dashboard Viewport</span>
+              <span class="status-indicator active">Operational</span>
+            </div>
           </div>
-          <div class="data-row">
-            <span class="row-label">Dashboard Viewport</span>
-            <span class="status-indicator active">Operational</span>
-          </div>
-        </div>
-      </article>
+        </article>
+      </div>
     </div>
+    
+    <!-- FOOTER PLACEHOLDER -->
+    <div id="footer-container"></div>
   </main>
 </div>
+
+<script src="/LayoutManager.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    LayoutManager.init({
+      showSidebar: false
+    });
+  });
+</script>
 </body>
 </html>

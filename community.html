@@ -10,23 +10,50 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <div class="app-layout">
-  <main class="content" style="padding: 0;">
-    <div class="info-page-container">
-      <a href="index.html" class="back-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-        Back to Dashboard
-      </a>
-      <article class="info-section">
-        <h1>Community</h1>
-        <p>Join over 5,000 creators and marketers in our official Discord community.</p>
-        <p>Share prompts, get feedback on your content, and stay updated on new features.</p>
-        <button id="generateBtn" onclick="window.location.href='https://discord.gg/sharp-ai'">
-          Join Discord
-        </button>
-      </article>
+  <!-- SIDEBAR PLACEHOLDER -->
+  <div id="sidebar-container"></div>
+
+  <!-- MAIN VIEWPORT -->
+  <main class="main-content">
+    <!-- TOPBAR PLACEHOLDER -->
+    <div id="topbar-container"></div>
+
+    <!-- CONTENT WRAPPER -->
+    <div class="view-viewport">
+      <div class="info-page-container">
+        <a href="index.html" class="back-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          Back to Dashboard
+        </a>
+        <article class="info-section">
+          <h1>Community</h1>
+          <p>Join over 5,000 creators and marketers in our official Discord community.</p>
+          <p>Share prompts, get feedback on your content, and stay updated on new features.</p>
+          <button id="generateBtn" onclick="window.location.href='https://discord.gg/sharp-ai'">
+            Join Discord
+          </button>
+        </article>
+      </div>
     </div>
+
+    <!-- FOOTER PLACEHOLDER -->
+    <div id="footer-container"></div>
   </main>
 </div>
+
+<script src="/LayoutManager.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    LayoutManager.init({ 
+      showSidebar: false, 
+      activeNav: '/community.html' 
+    });
+  });
+</script>
+
 </body>
 </html>
