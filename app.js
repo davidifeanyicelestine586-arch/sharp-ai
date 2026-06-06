@@ -11,7 +11,6 @@ const topicInput = document.getElementById("topicInput");
 const charCount = document.getElementById("charCount");
 const platformSelect = document.getElementById("platformSelect");
 const toneSelect = document.getElementById("toneSelect");
-const lengthSelect = document.getElementById("lengthSelect");
 const templateSelect = document.getElementById("templateSelect");
 const historyList = document.getElementById("historyList");
 const keywordsInput = document.getElementById("keywordsInput");
@@ -24,14 +23,6 @@ const clearHistoryBtn = document.getElementById("clearHistoryBtn");
 const exportBtn = document.getElementById("exportBtn");
 
 // Navigation Hubs
-const navItems = document.querySelectorAll(".nav-item");
-const saasViews = document.querySelectorAll(".saas-view");
-const viewTitle = document.getElementById("viewTitle");
-const viewSubtitle = document.getElementById("viewSubtitle");
-const menuToggle = document.getElementById("menuToggle");
-const sidebar = document.getElementById("sidebar");
-const sidebarOverlay = document.getElementById("sidebarOverlay");
-const sidebarCollapse = document.getElementById("sidebarCollapse");
 
 // SaaS DOM Extensions
 const upgradeBtn = document.getElementById("upgradeBtn");
@@ -56,8 +47,8 @@ const loadingStageText = document.getElementById("loadingStageText");
 
 /* ========================= APP STATE OBJECT ========================= */
 let history = JSON.parse(localStorage.getItem("sharpHistory")) || [];
-let lastPrompt = "";
 let isGenerating = false;
+
 
 // Dynamic memory buffer holding current session generation blocks for file exporting
 let currentActiveExportData = null;
@@ -298,65 +289,12 @@ if (saveKeyBtn && apiKeyInput) {
 /* ========================= SaaS VIEW ROUTER SWITCH ========================= */
 /**
  * Simple Page Manager to handle active states and mobile sidebar behavior.
+ * DEPRECATED: Now handled by LayoutManager.js
  */
-const PageManager = {
-  init() {
-    this.handleActiveState();
-    this.bindEvents();
-  },
-
-  handleActiveState() {
-    const currentPath = window.location.pathname;
-    const navItems = document.querySelectorAll(".nav-item");
-    
-    navItems.forEach(item => {
-      const href = item.getAttribute("href");
-      if (href && (currentPath === href || (currentPath === "/" && href === "/dashboard/"))) {
-        item.classList.add("active");
-      } else {
-        item.classList.remove("active");
-      }
-    });
-  },
-
-  bindEvents() {
-    // Mobile sidebar toggle is already handled below
-  },
-
-  closeMobileMenu() {
-    if (sidebar && sidebar.classList.contains("active")) {
-      sidebar.classList.remove("active");
-      if (sidebarOverlay) sidebarOverlay.classList.remove("active");
-    }
-  }
-};
 
 /* ========================= MOBILE NAVIGATION DRAWER ========================= */
-if (menuToggle && sidebar) {
-  const toggleSidebar = () => {
-    sidebar.classList.toggle("active");
-    if (sidebarOverlay) sidebarOverlay.classList.toggle("active");
-  };
+// DEPRECATED: Now handled by LayoutManager.js
 
-  menuToggle.addEventListener("click", (e) => {
-    e.stopPropagation();
-    toggleSidebar();
-  });
-
-  if (sidebarOverlay) {
-    sidebarOverlay.addEventListener("click", () => {
-      sidebar.classList.remove("active");
-      sidebarOverlay.classList.remove("active");
-    });
-  }
-
-  document.addEventListener("click", (e) => {
-    if (!sidebar.contains(e.target) && !menuToggle.contains(e.target) && sidebar.classList.contains("active")) {
-      sidebar.classList.remove("active");
-      if (sidebarOverlay) sidebarOverlay.classList.remove("active");
-    }
-  });
-}
 
 /* ========================= TEMPLATES VIEW INTERACTION ROUTER ========================= */
 document.querySelectorAll(".blueprint-card").forEach(card => {
@@ -374,8 +312,9 @@ document.querySelectorAll(".blueprint-card").forEach(card => {
       templateSelect.value = valueToSelect;
     }
 
-    if (typeof NavigationManager !== 'undefined') {
-      NavigationManager.scrollToSection("dashboard-view");
+    const dashboardView = document.getElementById("dashboard-view");
+    if (dashboardView) {
+      dashboardView.scrollIntoView({ behavior: "smooth" });
     }
     showToast(`Template layout "${valueToSelect}" loaded.`, "info");
   });
@@ -556,28 +495,6 @@ async function runGenerationPipeline() {
   // Fire progress loaders
   clearProgressiveMessages();
   runProgressiveSteps();
-
-  const prompt = `You are Sharp AI Content Engine.
-TEMPLATE: ${templateSelect ? templateSelect.value : ""}
-PLATFORM: ${platformSelect ? platformSelect.value : ""}
-TOPIC: ${topic}
-TONE: ${toneSelect ? toneSelect.value : ""}
-KEYWORDS: ${keywordsInput ? keywordsInput.value : ""}
-
-Return raw markdown blocks using exact headings syntax structures pattern below:
-HOOK:
-[Write Hook Markdown]
-
-CONTENT:
-[Write Body Paragraph System Layout Markdown]
-
-CTA:
-[Write Call to Action]
-
-HASHTAGS:
-[Write Tags Elements]`;
-
-  lastPrompt = prompt;
 
   try {
     const headers = {
@@ -773,8 +690,9 @@ function renderHistory() {
       if (outputLoadingState) outputLoadingState.classList.add("hidden");
       if (outputContentState) outputContentState.classList.remove("hidden");
 
-      if (typeof NavigationManager !== 'undefined') {
-        NavigationManager.scrollToSection("dashboard-view");
+      const dashboardView = document.getElementById("dashboard-view");
+      if (dashboardView) {
+        dashboardView.scrollIntoView({ behavior: "smooth" });
       }
       showToast("History asset loaded into active sandbox.", "success");
     });
@@ -813,9 +731,4 @@ if (clearHistoryBtn) {
 document.addEventListener("DOMContentLoaded", () => {
   renderHistory();
   fetchUserStatus();
-
-  // Initialize Page Manager
-  if (typeof PageManager !== 'undefined') {
-    PageManager.init();
-  }
 });

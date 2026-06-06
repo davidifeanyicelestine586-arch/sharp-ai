@@ -7,27 +7,48 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="/style.css">
 </head>
 <body>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="app-layout">
-  <main class="content" style="padding: 0;">
-    <div class="info-page-container">
-      <a href="index.html" class="back-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-        Back to Dashboard
-      </a>
-      <article class="info-section">
-        <h1>Prompt Guide</h1>
-        <p>Learn how to get the most out of Sharp AI with these prompting tips.</p>
-        <ul>
-          <li><strong>Be Specific:</strong> Instead of "write about marketing", try "3 ways to use email marketing for B2B SaaS".</li>
-          <li><strong>Define Your Voice:</strong> Use the Tone selector to match your personal or brand voice.</li>
-          <li><strong>Use Keywords:</strong> Adding SEO keywords helps the AI understand the context and intent.</li>
-        </ul>
-      </article>
+  <!-- SIDEBAR PLACEHOLDER -->
+  <div id="sidebar-container"></div>
+
+  <main class="main-content">
+    <!-- TOPBAR PLACEHOLDER -->
+    <div id="topbar-container"></div>
+
+    <div class="view-viewport">
+      <div class="info-page-container">
+        <a href="/dashboard/" class="back-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          Back to Dashboard
+        </a>
+        <article class="info-section">
+          <h1>Prompt Guide</h1>
+          <p>Learn how to get the most out of Sharp AI with these prompting tips.</p>
+          <ul>
+            <li><strong>Be Specific:</strong> Instead of "write about marketing", try "3 ways to use email marketing for B2B SaaS".</li>
+            <li><strong>Define Your Voice:</strong> Use the Tone selector to match your personal or brand voice.</li>
+            <li><strong>Use Keywords:</strong> Adding SEO keywords helps the AI understand the context and intent.</li>
+          </ul>
+        </article>
+      </div>
     </div>
+
+    <!-- FOOTER PLACEHOLDER -->
+    <div id="footer-container"></div>
   </main>
 </div>
+
+<script src="/LayoutManager.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    LayoutManager.init({
+      showSidebar: false
+    });
+  });
+</script>
 </body>
 </html>

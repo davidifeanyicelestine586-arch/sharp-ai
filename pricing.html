@@ -8,67 +8,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-</head>
-<body>
-<div class="app-layout">
-  <main class="main-content" style="padding: 0;">
-    <div class="info-page-container">
-      <a href="index.html" class="back-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-        Back to Dashboard
-      </a>
-      <article class="info-section">
-        <h1>Simple, Transparent Pricing</h1>
-        <p>Choose the plan that fits your content needs.</p>
-        <div class="contact-grid">
-          <div class="contact-card">
-            <h3>Free</h3>
-            <p><strong>$0/mo</strong></p>
-            <ul>
-              <li>3 Generations</li>
-              <li>Basic Templates</li>
-              <li>Standard Support</li>
-            </ul>
-            <button class="pricing-btn" onclick="subscribe('free')">Current Plan</button>
-          </div>
-          <div class="contact-card pro-card" style="border-color: var(--primary);">
-            <div class="popular-badge">Most Popular</div>
-            <h3>Pro</h3>
-            <p><strong>$29/mo</strong></p>
-            <ul>
-              <li>Unlimited Generations</li>
-              <li>All Premium Templates</li>
-              <li>Priority Support</li>
-              <li>Export Bundle</li>
-            </ul>
-            <button class="pricing-btn pro-btn" onclick="subscribe('pro')">Upgrade to Pro</button>
-          </div>
-          <div class="contact-card">
-            <h3>Enterprise</h3>
-            <p><strong>Custom</strong></p>
-            <ul>
-              <li>Custom Models</li>
-              <li>Team Collaboration</li>
-              <li>Dedicated Success Manager</li>
-              <li>SLA Guarantees</li>
-            </ul>
-            <button class="pricing-btn" onclick="window.location.href='contact.html'">Contact Sales</button>
-          </div>
-        </div>
-      </article>
-
-      <div id="success-overlay" class="hidden">
-        <div class="success-content">
-          <div class="success-icon">✨</div>
-          <h2>Upgrade Successful!</h2>
-          <p>Welcome to the Pro family. Your account has been upgraded.</p>
-          <button class="pricing-btn pro-btn" onclick="window.location.href='index.html'">Go to Dashboard</button>
-        </div>
-      </div>
-    </div>
-  </main>
-</div>
-
 <style>
   .pricing-btn {
     width: 100%;
@@ -130,9 +69,93 @@
     margin-bottom: 20px;
   }
 </style>
+</head>
+<body>
 
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-layout">
+  <!-- SIDEBAR PLACEHOLDER -->
+  <div id="sidebar-container"></div>
+
+  <!-- MAIN VIEWPORT -->
+  <main class="main-content">
+    <!-- TOPBAR PLACEHOLDER -->
+    <div id="topbar-container"></div>
+
+    <!-- CONTENT WRAPPER -->
+    <div class="view-viewport">
+      <div class="info-page-container">
+        <a href="index.html" class="back-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          Back to Dashboard
+        </a>
+        <article class="info-section">
+          <h1>Simple, Transparent Pricing</h1>
+          <p>Choose the plan that fits your content needs.</p>
+          <div class="contact-grid">
+            <div class="contact-card">
+              <h3>Free</h3>
+              <p><strong>$0/mo</strong></p>
+              <ul>
+                <li>3 Generations</li>
+                <li>Basic Templates</li>
+                <li>Standard Support</li>
+              </ul>
+              <button class="pricing-btn" onclick="subscribe('free')">Current Plan</button>
+            </div>
+            <div class="contact-card pro-card" style="border-color: var(--primary);">
+              <div class="popular-badge">Most Popular</div>
+              <h3>Pro</h3>
+              <p><strong>$29/mo</strong></p>
+              <ul>
+                <li>Unlimited Generations</li>
+                <li>All Premium Templates</li>
+                <li>Priority Support</li>
+                <li>Export Bundle</li>
+              </ul>
+              <button class="pricing-btn pro-btn" onclick="subscribe('pro')">Upgrade to Pro</button>
+            </div>
+            <div class="contact-card">
+              <h3>Enterprise</h3>
+              <p><strong>Custom</strong></p>
+              <ul>
+                <li>Custom Models</li>
+                <li>Team Collaboration</li>
+                <li>Dedicated Success Manager</li>
+                <li>SLA Guarantees</li>
+              </ul>
+              <button class="pricing-btn" onclick="window.location.href='contact.html'">Contact Sales</button>
+            </div>
+          </div>
+        </article>
+
+        <div id="success-overlay" class="hidden">
+          <div class="success-content">
+            <div class="success-icon">✨</div>
+            <h2>Upgrade Successful!</h2>
+            <p>Welcome to the Pro family. Your account has been upgraded.</p>
+            <button class="pricing-btn pro-btn" onclick="window.location.href='index.html'">Go to Dashboard</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER PLACEHOLDER -->
+    <div id="footer-container"></div>
+  </main>
+</div>
+
+<script src="/LayoutManager.js"></script>
 <script>
-  async function subscribe(planId) {
+  document.addEventListener('DOMContentLoaded', () => {
+    LayoutManager.init({ 
+      showSidebar: false, 
+      activeNav: '/pricing/' 
+    });
+  });
+
+  async function subscribe(planId) { // eslint-disable-line no-unused-vars
     if (planId === 'free') {
       window.location.href = 'index.html';
       return;
