@@ -137,7 +137,7 @@ const LayoutManager = {
           </div>
         </div>
 
-        <div class="topbar-actions">
+        <div class="topbar-right">
           <button class="upgrade-btn" id="upgradeBtn">
             Upgrade Pro
           </button>
