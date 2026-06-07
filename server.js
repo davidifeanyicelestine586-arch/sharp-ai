@@ -10,7 +10,11 @@ import { PLANS } from "./lib/plans.js";
 
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.static('.'));
 
@@ -71,19 +75,12 @@ app.post("/api/generate", async (req, res) => {
       });
     }
 
-    // 2. Check for client-supplied API key in Authorization header
-    const authHeader = req.headers.authorization;
-    let apiKey = process.env.OPENAI_API_KEY;
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-      const clientKey = authHeader.substring(7).trim();
-      if (clientKey) {
-        apiKey = clientKey;
-      }
-    }
+    // 2. Use server-side API key only
+    const apiKey = process.env.OPENAI_API_KEY;
 
     if (!apiKey) {
-      return res.status(400).json({
-        error: "OpenAI API Key is missing. Please configure it in your Settings."
+      return res.status(500).json({
+        error: "OpenAI API Key is not configured on the server. Please check environment variables."
       });
     }
 

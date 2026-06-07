@@ -23,18 +23,11 @@ export default async function handler(req, res) {
       });
     }
 
-    const authHeader = req.headers.authorization;
-    let apiKey = process.env.OPENAI_API_KEY;
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-      const clientKey = authHeader.substring(7).trim();
-      if (clientKey) {
-        apiKey = clientKey;
-      }
-    }
+    const apiKey = process.env.OPENAI_API_KEY;
 
     if (!apiKey) {
-      return res.status(400).json({
-        error: "OpenAI API Key is missing. Please configure it in your Settings."
+      return res.status(500).json({
+        error: "OpenAI API Key is not configured on the server. Please check environment variables."
       });
     }
 
