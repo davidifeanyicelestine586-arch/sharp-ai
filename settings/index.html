@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -24,15 +24,18 @@
         <div class="settings-card">
           <div class="settings-title-section">
             <h3>Configuration Panel</h3>
-            <p>Manage API integrations and account credentials.</p>
+            <p>Security and platform integrations are managed automatically.</p>
           </div>
           <div class="field">
-            <label for="apiKeyInput">OpenAI API Key</label>
-            <div class="api-input-wrapper">
-              <input type="password" id="apiKeyInput" placeholder="sk-proj-...">
-              <button id="saveKeyBtn">Save Token</button>
+            <div class="api-status-banner" style="display: flex; gap: 12px; padding: 16px; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.1); border-radius: 8px;">
+              <div class="banner-icon" style="color: var(--success);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              </div>
+              <div class="banner-text">
+                <strong style="display: block; color: var(--text-primary); margin-bottom: 4px;">Secure Connection Active</strong>
+                <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">AI model connections are now managed securely through our encrypted backend. No manual API key configuration is required.</p>
+              </div>
             </div>
-            <p class="field-hint">Your API token is processed exclusively on the client side.</p>
           </div>
           <div class="settings-data-table">
             <div class="data-row">
@@ -62,6 +65,6 @@
   });
 </script>
 <script src="/config.js"></script>
-<script src="/app.js"></script>
+<script type="module" src="/app.js"></script>
 </body>
 </html>

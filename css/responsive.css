@@ -1,0 +1,255 @@
+/* ==========================================================================
+   MOBILE MENU OVERLAYS & RESPONSIVENESS OVERRIDES
+   ========================================================================== */
+.menu-toggle {
+  display: none;
+  background-color: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+  padding: 12px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-premium);
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.menu-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: var(--border-premium-hover);
+}
+
+/* Tablet Layout Constraints */
+@media (max-width: 1200px) {
+  .dashboard-workspace {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+}
+
+@media (max-width: 900px) {
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+  
+  .stats-row .stat-card:last-child {
+    grid-column: span 2;
+  }
+}
+
+/* Mobile Screen Breakpoints */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 16px;
+    left: -100%;
+    width: calc(var(--sidebar-width) - 32px);
+    height: calc(100dvh - 32px);
+    margin: 0;
+    z-index: 1001;
+    box-shadow: 20px 0 40px rgba(0, 0, 0, 0.6);
+    background-color: var(--bg-sidebar);
+    transition: left 0.3s ease, width 0.3s ease;
+  }
+  
+  .sidebar.active {
+    left: 16px;
+  }
+
+  .sidebar-collapse-btn {
+    display: none;
+  }
+  
+  .menu-toggle {
+    display: flex;
+  }
+
+  .main-content {
+    padding: 0 var(--space-4);
+  }
+  
+  .topbar {
+    padding: 0;
+    gap: 12px;
+  }
+  
+  .view-title {
+    font-size: 18px;
+  }
+
+  .view-subtitle {
+    display: none;
+  }
+
+  .header-search {
+    display: none;
+  }
+
+  .topbar-right {
+    gap: 8px;
+  }
+
+  .upgrade-btn {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+  
+  .stats-row {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  
+  .stats-row .stat-card:last-child {
+    grid-column: span 1;
+  }
+  
+  .dashboard-workspace,
+  .writer-container,
+  .code-workspace {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  .writer-container,
+  .code-workspace {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .writer-sidebar,
+  .code-workspace aside {
+    width: 100%;
+    order: 2;
+  }
+
+  .writer-editor-card,
+  .code-preview-card {
+    order: 1;
+    min-height: 400px;
+  }
+
+  .chat-container {
+    height: calc(100dvh - var(--topbar-height) - 40px);
+  }
+
+  .message {
+    max-width: 90%;
+  }
+  
+  .row {
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  
+  .button-group {
+    flex-direction: column;
+  }
+  
+  .sandbox-panel {
+    min-height: 400px;
+  }
+  
+  .sandbox-actions-header {
+    padding: var(--space-4);
+    flex-direction: column;
+    gap: var(--space-4);
+    align-items: flex-start;
+  }
+  
+  .premium-export-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-8);
+  }
+
+  .footer-brand {
+    grid-column: span 2;
+    text-align: center;
+    align-items: center;
+  }
+
+  .footer-brand p {
+    max-width: 100%;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .toast-container {
+    bottom: var(--space-4);
+    left: var(--space-4);
+    right: var(--space-4);
+  }
+  
+  .toast {
+    width: 100%;
+  }
+
+  .info-section {
+    padding: var(--space-6);
+  }
+
+  .info-section h1 {
+    font-size: 24px;
+  }
+
+  .templates-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pro-card {
+    transform: scale(1) !important;
+    margin: var(--space-4) 0;
+  }
+
+  .success-content {
+    width: calc(100% - 32px);
+    padding: var(--space-8);
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-brand {
+    grid-column: span 1;
+  }
+
+  .view-title {
+    font-size: 16px;
+  }
+
+  .logo-text {
+    font-size: 18px;
+  }
+
+  .sidebar {
+    width: calc(100% - 32px);
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .image-gallery {
+    grid-template-columns: 1fr;
+  }
+}
