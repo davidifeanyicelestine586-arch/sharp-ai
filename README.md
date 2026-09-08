@@ -1,58 +1,62 @@
 # Sharp AI
 
-Sharp AI is an AI-powered Content Studio MVP focused on transforming a single idea into multiple content formats (blog, social posts, email). This repository contains the frontend (static HTML/CSS/JS) and a small Node/Express backend used to proxy OpenAI requests and manage simple usage/subscription logic.
+Sharp AI is an AI-powered Content Studio MVP focused on transforming one idea into multiple content formats, including blog posts, social posts, and email. The repository contains a frontend built with HTML/CSS/JavaScript and a small Node/Express backend that proxies provider requests and handles simple usage/subscription logic.
 
-Quick start
+## Portfolio context
 
-1. Clone:
+This is a project in David Ifeanyi's software/web development portfolio. It demonstrates work across application UI, backend integration, API handling, deployment, and debugging. It is presented as an MVP/project rather than as a production-scale SaaS platform.
 
-   git clone https://github.com/davidifeanyicelestine586-arch/sharp-ai.git
-   cd sharp-ai
+## Current scope
 
-2. Install dependencies:
+- Multi-format content generation workflow
+- Frontend interface and responsive UI work
+- Node/Express backend
+- Provider/API request proxying
+- Simple local usage/subscription logic
+- Local mock database for development usage tracking
 
-   npm ci
+The current repository uses a small on-disk `mock_db.json` for local development. A production database would require a separate persistence implementation.
 
-3. Create environment variables:
+## Quick start
 
-   - Copy `.env.example` to `.env` and fill in provider keys.
+1. Install dependencies:
 
-   cp .env.example .env
-   # then edit .env
+```bash
+npm ci
+```
 
-4. Run the app (development):
+2. Copy `.env.example` to `.env` and configure the required provider variables.
 
-   npm run dev
+```bash
+cp .env.example .env
+```
 
-   - Server defaults to port 3000. Visit http://localhost:3000
+3. Start the development server:
 
-Notes
+```bash
+npm run dev
+```
 
-- Do NOT commit secrets. `.env` is ignored by .gitignore.
-- The repository currently contains a small on-disk mock DB at `mock_db.json` for local dev usage tracking. Consider switching to SQLite, Supabase, or another database for production.
+The server defaults to port 3000.
 
-Required environment variables (see `.env.example`):
+## Development scripts
 
-- OPENAI_API_KEY — server-side API key for the OpenAI-compatible provider
-- PORT — optional (defaults to 3000)
-- ALLOWED_ORIGINS — optional comma-separated origins for CORS
+- `npm run dev` — start the development server
+- `npm run start` — start the server in production mode
+- `npm run lint` — run the linter
+- `npm test` — run tests
 
-Development scripts
+## Security
 
-- npm run dev — start the server with `node server.js`
-- npm run start — start production server (`node server.js`)
-- npm run lint — run linter (added later)
-- npm test — run tests (added later)
+Do not commit API keys, credentials, `.env` files, or other secrets. Provider credentials belong in environment configuration and must remain server-side.
 
-Security & deployment
+## Project status
 
-- The repo should not include `node_modules/`. If you see `node_modules` tracked, remove it with `git rm -r --cached node_modules` then commit.
-- Configure environment variables in your hosting provider (Vercel, Netlify, etc.) and do not commit them.
+**Status:** Portfolio project / MVP.
 
-How to contribute
+The repository should be evaluated from its current implementation rather than from planned production capabilities.
 
-- Follow the code style and keep changes modular. Open an issue or PR for larger changes.
+## Evidence
 
-Contact
-
-- Project founder: David
+- Repository source code: GitHub
+- Live project: https://sharp-ai-murex.vercel.app
